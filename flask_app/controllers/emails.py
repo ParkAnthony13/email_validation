@@ -1,3 +1,4 @@
+from flask.helpers import get_flashed_messages
 from flask_app import app
 from flask import render_template, request, session, redirect
 from flask_app.models.email import Email
@@ -16,6 +17,8 @@ def emails():
 def new_dojo():
     if not Email.validate_user(request.form):
         return redirect('/')
+    if not Email.duplicates():
+        return redirect('/')
     data = {
         'name':request.form['name'],
         'email':request.form['email']
@@ -31,5 +34,6 @@ def delete(id):
 @app.route('/register', methods=['POST'])
 def register():
     if not Email.validate_user(request.form):
+        print(get_flashed_messages())
         return redirect('/')
-    return redirect('/success')
+    # return redirect('/success')

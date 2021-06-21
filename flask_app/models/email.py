@@ -27,6 +27,7 @@ class Email:
     @classmethod
     def insert(cls, data):
         query = "INSERT INTO emails (name,email, created_at, updated_at) VALUES ( %(name)s, %(email)s, NOW(), NOW());"
+        flash("success")
         return connectToMySQL('email_validation_schema').query_db(query, data)
 
 
@@ -45,6 +46,7 @@ class Email:
         if len(email['email']) < 3:
             flash("location must be at least 3 characters.")
             is_valid = False
+        flash("Success!")
         return is_valid
 
 
@@ -55,4 +57,16 @@ class Email:
         if not EMAIL_REGEX.match(email['email']): 
             flash("Invalid email address!")
             is_valid = False
+        elif Email.duplicates(email):
+            flash(f"{email['email']} already exists")
+            is_valid = False
         return is_valid
+    
+    @staticmethod
+    def duplicates(data):
+        query = "SELECT * FROM emails WHERE email=%(email)s;"
+        result = connectToMySQL('email_validation_schema').query_db(query,data)
+        duplicate = False
+        if result:
+            duplicate = True
+        return duplicate
